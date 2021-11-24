@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:time_list/models/item.dart';
 
 void main() {
   runApp(MyApp());
@@ -51,8 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text('OK'),
                 onPressed: () {
                   setState(() {
-                    codeDialog = valueText;
-                    competidores.add(codeDialog);
+                    txtCompetidor = valueText;
+                    listaCompetidores
+                        .add(new Item(txtCompetidor, DateTime.now()));
                     Navigator.pop(context);
                   });
                 },
@@ -62,24 +65,29 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  String codeDialog;
+  String txtCompetidor;
   String valueText;
 
-  List<String> competidores = List();
+  List<Item> listaCompetidores = List();
 
   List<Widget> _listar() {
     List<Widget> lista = new List();
-    competidores.forEach((element) {
+
+    for (var i = 0; i < listaCompetidores.length; i++) {
       lista.add(new Card(
         child: new ListTile(
             title: Text(
-          element,
+          (i + 1).toString() +
+              " - " +
+              listaCompetidores[i].competidor +
+              " - " +
+              DateFormat('mm:ss.SSS').format(listaCompetidores[i].tiempo),
           style: new TextStyle(
-              fontFamily: 'DS-Digital', fontSize: 55, color: Colors.red),
+              fontFamily: 'DS-Digital', fontSize: 45, color: Colors.red),
         )),
         color: Colors.black,
       ));
-    });
+    }
     return lista;
   }
 
@@ -88,11 +96,27 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_displayTextInputDialog(context)},
-        child: Icon(Icons.add, size: 40,),
+        child: Icon(
+          Icons.add,
+          size: 40,
+        ),
         backgroundColor: Colors.red,
       ),
       body: Center(
-        child: ListView(children: _listar()),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              "TIME LIST",
+              style: TextStyle(
+                  fontFamily: 'DS-Digital', color: Colors.red, fontSize: 50),
+            ),
+            Expanded(child: ListView(children: _listar()))
+          ],
+        ),
       ),
     );
   }
