@@ -29,6 +29,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _textFieldController = TextEditingController();
+  TextEditingController _textFieldController2 = TextEditingController();
 
 // ALERTA CON INPUT TEXT
   Future<void> _displayTextInputDialog(BuildContext context) async {
@@ -37,14 +38,26 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (context) {
           return AlertDialog(
             title: Text('Nuevo piloto'),
-            content: TextField(
+            content: Column(
+              children: [
+                TextField(
               onChanged: (value) {
                 setState(() {
-                  valueText = value;
+                  competidorText = value;
                 });
               },
               controller: _textFieldController,
               decoration: InputDecoration(hintText: "Text Field in Dialog"),
+            ),TextField(
+              onChanged: (value) {
+                setState(() {
+                  dateText = value;
+                });
+              },
+              controller: _textFieldController2,
+              decoration: InputDecoration(hintText: "Tiempo"),
+            )
+              ],
             ),
             actions: <Widget>[
               FlatButton(
@@ -53,9 +66,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text('OK'),
                 onPressed: () {
                   setState(() {
-                    txtCompetidor = valueText;
+                    txtCompetidor = competidorText;
+                    txtDate = dateText;
                     listaCompetidores
-                        .add(new Item(txtCompetidor, DateTime.now()));
+                        .add(new Item(txtCompetidor, DateTime.parse('2021-01-01 01:'+ txtDate)));
+                        ordenar();
                     Navigator.pop(context);
                   });
                 },
@@ -66,36 +81,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String txtCompetidor;
-  String valueText;
+  String competidorText;
+
+  String txtDate;
+  String dateText;
 
   List<Item> listaCompetidores = List();
 
   ordenar(){
-    
+        listaCompetidores.sort((a,b) => 
+          a.tiempo.millisecondsSinceEpoch.compareTo(b.tiempo.millisecondsSinceEpoch)
+        );
   }
-
-/*
-  List<Widget> _listar() {
-    List<Widget> lista = new List();
-
-    for (var i = 0; i < listaCompetidores.length; i++) {
-      lista.add(new Card(
-        child: new ListTile(
-            title: Text(
-          (i + 1).toString() +
-              " - " +
-              listaCompetidores[i].competidor +
-              " - " +
-              DateFormat('mm:ss.SSS').format(listaCompetidores[i].tiempo),
-          style: new TextStyle(
-              fontFamily: 'DS-Digital', fontSize: 45, color: Colors.red),
-        )),
-        color: Colors.black,
-      ));
-    }
-    return lista;
-  }
-*/
 
   @override
   Widget build(BuildContext context) {
@@ -144,6 +141,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   onDismissed: (direction) {
                     listaCompetidores.removeAt(index);
+                  setState(() {
+                    ordenar();
+                  });
                     Scaffold.of(context).showSnackBar(
                         new SnackBar(content: new Text("Eliminando")));
                   },
