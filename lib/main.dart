@@ -70,6 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Item> listaCompetidores = List();
 
+  ordenar(){
+    
+  }
+
+/*
   List<Widget> _listar() {
     List<Widget> lista = new List();
 
@@ -90,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return lista;
   }
+*/
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +120,36 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(
                   fontFamily: 'DS-Digital', color: Colors.red, fontSize: 50),
             ),
-            Expanded(child: ListView(children: _listar()))
+            Expanded(
+                child: ListView.builder(
+              itemCount: listaCompetidores.length,
+              itemBuilder: (context, int index) {
+                return new Dismissible(
+                  key: new Key(listaCompetidores[index].tiempo.toString()),
+                  child: new Card(
+                    child: new ListTile(
+                        title: Text(
+                      (index + 1).toString() +
+                          " - " +
+                          listaCompetidores[index].competidor +
+                          " - " +
+                          DateFormat('mm:ss.SSS')
+                              .format(listaCompetidores[index].tiempo),
+                      style: new TextStyle(
+                          fontFamily: 'DS-Digital',
+                          fontSize: 45,
+                          color: Colors.red),
+                    )),
+                    color: Colors.black,
+                  ),
+                  onDismissed: (direction) {
+                    listaCompetidores.removeAt(index);
+                    Scaffold.of(context).showSnackBar(
+                        new SnackBar(content: new Text("Eliminando")));
+                  },
+                );
+              },
+            ))
           ],
         ),
       ),
