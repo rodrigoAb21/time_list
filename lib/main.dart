@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:time_list/models/item.dart';
 
@@ -28,8 +29,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TextEditingController _textFieldController = TextEditingController();
-  TextEditingController _textFieldController2 = TextEditingController();
+  TextEditingController _nombreController = TextEditingController();
+  TextEditingController _minController = TextEditingController();
+  TextEditingController _segController = TextEditingController();
+  TextEditingController _milController = TextEditingController();
 
 // Alerta con input
   Future<void> _displayTextInputDialog(BuildContext context) async {
@@ -37,47 +40,152 @@ class _MyHomePageState extends State<MyHomePage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Center(child: Text('Nuevo Tiempo')),
+            title: Center(
+                child: Text(
+              'Nuevo Tiempo',
+              style: TextStyle(fontSize: 25),
+            )),
+            insetPadding: EdgeInsets.symmetric(horizontal: 0),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-              onChanged: (value) {
-                setState(() {
-                  competidorText = value;
-                });
-              },
-              controller: _textFieldController,
-              decoration: InputDecoration(
-                labelText: "Nombre",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person)),
-            ), SizedBox(height: 20.0,)
-            ,TextField(
-              onChanged: (value) {
-                setState(() {
-                  dateText = value;
-                });
-              },
-              controller: _textFieldController2,
-              decoration: InputDecoration(labelText: "Tiempo",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.timer)),
-            )
+                  style: TextStyle(fontSize: 20),
+                  onChanged: (value) {
+                    setState(() {
+                      nombreTxt = value;
+                    });
+                  },
+                  controller: _nombreController,
+                  keyboardType: TextInputType.text,
+                  maxLength: 3,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: "Nombre",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      // optional flex property if flex is 1 because the default flex is 1
+                      flex: 1,
+                      child: TextField(
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r"^([0-5][0-9]?)$")),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            minText = value;
+                          });
+                        },
+                        controller: _minController,
+//                  keyboardType: TextInputType.datetime,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: "00"
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                      child: Center(
+                        child: Text(
+                          ":",
+                          style: TextStyle(fontSize: 25),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      // optional flex property if flex is 1 because the default flex is 1
+                      flex: 1,
+                      child: TextField(
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r"^(\d{1,2})$")),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            segText = value;
+                          });
+                        },
+                        controller: _segController,
+//                  keyboardType: TextInputType.datetime,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: "00"
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                      child: Center(
+                        child: Text(
+                          ".",
+                          style: TextStyle(fontSize: 25),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      // optional flex property if flex is 1 because the default flex is 1
+                      flex: 1,
+                      child: TextField(
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r"^(\d{1,3})$")),
+                        ],
+//                  keyboardType: TextInputType.datetime,
+                        onChanged: (value) {
+                          setState(() {
+                            milText = value;
+                          });
+                        },
+                        controller: _milController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: "000"
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
             actions: <Widget>[
               FlatButton(
                 color: Colors.blue,
                 textColor: Colors.white,
-                child: Text('OK'),
+                child: Text('OK', style: TextStyle(fontSize: 20),),
                 onPressed: () {
                   setState(() {
-                    txtCompetidor = competidorText;
-                    txtDate = dateText;
-                    listaCompetidores
-                        .add(new Item(txtCompetidor, DateTime.parse('2021-01-01 01:'+ txtDate)));
-                        ordenar();
+                    txtNombre = nombreTxt;
+                    //txtDate = dateText;
+                    txtMin = minText;
+                    txtSeg = segText;
+                    txtMil = milText;
+                    listaCompetidores.add(new Item(
+                        txtNombre,
+                        DateTime.parse('2021-01-01 01:' +
+                            validarMin(txtMin) +
+                            ':' +
+                            validarSeg(txtSeg) +
+                            '.' +
+                            validarMil(txtMil))));
+                    ordenar();
+                    _nombreController.clear();
+                    _minController.clear();
+                    _segController.clear();
+                    _milController.clear();
                     Navigator.pop(context);
                   });
                 },
@@ -86,22 +194,61 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         });
   }
-  
+
   // variables pal input nombre de competidor
-  String txtCompetidor;
-  String competidorText;
+  String txtNombre;
+  String nombreTxt;
 
   // variables pal input tiempo de competidor
-  String txtDate;
-  String dateText;
+  //String txtDate;
+  //String dateText;
+
+  // variables pal input tiempo de competidor
+  String txtMin;
+  String minText;
+
+  // variables pal input tiempo de competidor
+  String txtSeg;
+  String segText;
+
+  // variables pal input tiempo de competidor
+  String txtMil;
+  String milText;
 
   // lista de objetos "Item" que es una clase propia
   List<Item> listaCompetidores = List();
 
-  ordenar(){
-        listaCompetidores.sort((a,b) => 
-          a.tiempo.millisecondsSinceEpoch.compareTo(b.tiempo.millisecondsSinceEpoch)
-        );
+  ordenar() {
+    listaCompetidores.sort((a, b) => a.tiempo.millisecondsSinceEpoch
+        .compareTo(b.tiempo.millisecondsSinceEpoch));
+  }
+
+  String validarMin(String minutos) {
+    String cadena = minutos;
+    if (cadena.length == 1) {
+      cadena = '0' + cadena;
+    }
+    return cadena;
+  }
+
+  String validarSeg(String segundos) {
+    String cadena = segundos;
+    if (cadena.length == 1) {
+      cadena = '0' + cadena;
+    }
+    return cadena;
+  }
+
+  String validarMil(String milesima) {
+    String cadena = milesima;
+    if (cadena.length == 1) {
+      cadena = '00' + cadena;
+    } else {
+      if (cadena.length == 2) {
+        cadena = '0' + cadena;
+      }
+    }
+    return cadena;
   }
 
   // FrontEnd
@@ -152,9 +299,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   onDismissed: (direction) {
                     listaCompetidores.removeAt(index);
-                  setState(() {
-                    ordenar();
-                  });
+                    setState(() {
+                      ordenar();
+                    });
                     Scaffold.of(context).showSnackBar(
                         new SnackBar(content: new Text("Eliminando")));
                   },
