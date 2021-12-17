@@ -31,14 +31,15 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _textFieldController = TextEditingController();
   TextEditingController _textFieldController2 = TextEditingController();
 
-// ALERTA CON INPUT TEXT
+// Alerta con input
   Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Nuevo piloto'),
+            title: Center(child: Text('Nuevo Tiempo')),
             content: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
               onChanged: (value) {
@@ -47,15 +48,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
               controller: _textFieldController,
-              decoration: InputDecoration(hintText: "Text Field in Dialog"),
-            ),TextField(
+              decoration: InputDecoration(
+                labelText: "Nombre",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person)),
+            ), SizedBox(height: 20.0,)
+            ,TextField(
               onChanged: (value) {
                 setState(() {
                   dateText = value;
                 });
               },
               controller: _textFieldController2,
-              decoration: InputDecoration(hintText: "Tiempo"),
+              decoration: InputDecoration(labelText: "Tiempo",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.timer)),
             )
               ],
             ),
@@ -79,13 +86,16 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         });
   }
-
+  
+  // variables pal input nombre de competidor
   String txtCompetidor;
   String competidorText;
 
+  // variables pal input tiempo de competidor
   String txtDate;
   String dateText;
 
+  // lista de objetos "Item" que es una clase propia
   List<Item> listaCompetidores = List();
 
   ordenar(){
@@ -94,6 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
   }
 
+  // FrontEnd
   @override
   Widget build(BuildContext context) {
     return Scaffold(
