@@ -11,11 +11,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+     SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primarySwatch: Colors.blue, scaffoldBackgroundColor: Colors.black),
-      home: MyHomePage(title: 'Alert Dialog'),
+      home: MyHomePage(title: 'Time List'),
     );
   }
 }
@@ -58,15 +62,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   controller: _nombreController,
                   keyboardType: TextInputType.text,
-                  maxLength: 3,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r"^([a-zA-Z0-9]){1,3}")),
                   ],
                   decoration: InputDecoration(
                     labelText: "Nombre",
                     border: OutlineInputBorder(),
                   ),
                 ),
+                SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
@@ -76,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: TextField(
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 20),
+                        keyboardType: TextInputType.number,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
                               RegExp(r"^([0-5][0-9]?)$")),
@@ -86,7 +92,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         },
                         controller: _minController,
-//                  keyboardType: TextInputType.datetime,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(), hintText: "00"),
                       ),
@@ -108,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         style: TextStyle(fontSize: 20),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r"^(\d{1,2})$")),
+                               RegExp(r"^([0-5][0-9]?)$")),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -116,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         },
                         controller: _segController,
-//                  keyboardType: TextInputType.datetime,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(), hintText: "00"),
                       ),
@@ -140,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           FilteringTextInputFormatter.allow(
                               RegExp(r"^(\d{1,3})$")),
                         ],
-//                  keyboardType: TextInputType.datetime,
+                        keyboardType: TextInputType.number,
                         onChanged: (value) {
                           setState(() {
                             milText = value;
@@ -227,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .compareTo(b.tiempo.millisecondsSinceEpoch));
   }
 
-  String validarNombre(String nombre){
+  String validarNombre(String nombre) {
     String cadena = nombre;
     if (cadena != null) {
       if (cadena.length == 0)
@@ -267,17 +272,61 @@ class _MyHomePageState extends State<MyHomePage> {
     return cadena;
   }
 
+  _deleteAlert(BuildContext context) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("Si"),
+      onPressed: () {
+        setState(() {
+          listaCompetidores.clear();
+        });
+        Navigator.pop(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Eliminar lista"),
+      content: Text("¿Realmente desea eliminar toda la lista?"),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   // FrontEnd
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {_displayTextInputDialog(context)},
-        child: Icon(
-          Icons.add,
-          size: 40,
-        ),
-        backgroundColor: Colors.red,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () => {_displayTextInputDialog(context)},
+            child: Icon(
+              Icons.add,
+              size: 40,
+            ),
+            backgroundColor: Colors.red,
+          ),
+          SizedBox(height: 10),
+          FloatingActionButton(
+            onPressed: () => {_deleteAlert(context)},
+            child: Icon(
+              Icons.delete,
+              size: 40,
+            ),
+            backgroundColor: Colors.red,
+          )
+        ],
       ),
       body: Center(
         child: Column(
@@ -289,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               "TIME LIST",
               style: TextStyle(
-                  fontFamily: 'DS-Digital', color: Colors.red, fontSize: 50),
+                  fontFamily: 'DS-Digital', color: Colors.red, fontSize: 40),
             ),
             Expanded(
                 child: ListView.builder(
@@ -308,7 +357,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               .format(listaCompetidores[index].tiempo),
                       style: new TextStyle(
                           fontFamily: 'DS-Digital',
-                          fontSize: 45,
+                          fontSize: 35,
                           color: Colors.red),
                     )),
                     color: Colors.black,
@@ -318,8 +367,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     setState(() {
                       ordenar();
                     });
-                    Scaffold.of(context).showSnackBar(
-                        new SnackBar(content: new Text("Eliminando")));
                   },
                 );
               },
