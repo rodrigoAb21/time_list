@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(fontSize: 20),
                   onChanged: (value) {
                     setState(() {
-                      nombreTxt = value;
+                      nombreText = value;
                     });
                   },
                   controller: _nombreController,
@@ -88,9 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         controller: _minController,
 //                  keyboardType: TextInputType.datetime,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "00"
-                        ),
+                            border: OutlineInputBorder(), hintText: "00"),
                       ),
                     ),
                     SizedBox(
@@ -120,9 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         controller: _segController,
 //                  keyboardType: TextInputType.datetime,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "00"
-                        ),
+                            border: OutlineInputBorder(), hintText: "00"),
                       ),
                     ),
                     SizedBox(
@@ -152,9 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         controller: _milController,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "000"
-                        ),
+                            border: OutlineInputBorder(), hintText: "000"),
                       ),
                     ),
                   ],
@@ -162,34 +156,48 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             actions: <Widget>[
-              FlatButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                child: Text('OK', style: TextStyle(fontSize: 20),),
-                onPressed: () {
-                  setState(() {
-                    txtNombre = nombreTxt;
-                    //txtDate = dateText;
-                    txtMin = minText;
-                    txtSeg = segText;
-                    txtMil = milText;
-                    listaCompetidores.add(new Item(
-                        txtNombre,
-                        DateTime.parse('2021-01-01 01:' +
-                            validarMin(txtMin) +
-                            ':' +
-                            validarSeg(txtSeg) +
-                            '.' +
-                            validarMil(txtMil))));
-                    ordenar();
-                    _nombreController.clear();
-                    _minController.clear();
-                    _segController.clear();
-                    _milController.clear();
-                    Navigator.pop(context);
-                  });
-                },
-              ),
+              ButtonTheme(
+                minWidth: 265,
+                height: 40,
+                child: RaisedButton(
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                  child: Text(
+                    'OK',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      txtNombre = nombreText;
+                      txtMin = minText;
+                      txtSeg = segText;
+                      txtMil = milText;
+                      listaCompetidores.add(new Item(
+                          validarNombre(txtNombre),
+                          DateTime.parse('2021-01-01 01:' +
+                              validar2d(txtMin) +
+                              ':' +
+                              validar2d(txtSeg) +
+                              '.' +
+                              validar3d(txtMil))));
+                      ordenar();
+                      _nombreController.clear();
+                      _minController.clear();
+                      _segController.clear();
+                      _milController.clear();
+                      txtNombre = '';
+                      txtMin = '';
+                      txtSeg = '';
+                      txtMil = '';
+                      nombreText = '';
+                      minText = '';
+                      segText = '';
+                      milText = '';
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+              )
             ],
           );
         });
@@ -197,11 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // variables pal input nombre de competidor
   String txtNombre;
-  String nombreTxt;
-
-  // variables pal input tiempo de competidor
-  //String txtDate;
-  //String dateText;
+  String nombreText;
 
   // variables pal input tiempo de competidor
   String txtMin;
@@ -223,31 +227,43 @@ class _MyHomePageState extends State<MyHomePage> {
         .compareTo(b.tiempo.millisecondsSinceEpoch));
   }
 
-  String validarMin(String minutos) {
-    String cadena = minutos;
-    if (cadena.length == 1) {
-      cadena = '0' + cadena;
-    }
+  String validarNombre(String nombre){
+    String cadena = nombre;
+    if (cadena != null) {
+      if (cadena.length == 0)
+        cadena = 'XXX';
+      else if (cadena.length == 1)
+        cadena = cadena + cadena[0] + cadena[0];
+      else if (cadena.length == 2) cadena = cadena + cadena[1];
+    } else
+      cadena = 'XXX';
+
     return cadena;
   }
 
-  String validarSeg(String segundos) {
-    String cadena = segundos;
-    if (cadena.length == 1) {
-      cadena = '0' + cadena;
-    }
+  String validar2d(String numero) {
+    String cadena = numero;
+    if (cadena != null) {
+      if (cadena.length == 0)
+        cadena = '00' + cadena;
+      else if (cadena.length == 1) cadena = '0' + cadena;
+    } else
+      cadena = '00';
+
     return cadena;
   }
 
-  String validarMil(String milesima) {
-    String cadena = milesima;
-    if (cadena.length == 1) {
-      cadena = '00' + cadena;
-    } else {
-      if (cadena.length == 2) {
-        cadena = '0' + cadena;
-      }
-    }
+  String validar3d(String numero) {
+    String cadena = numero;
+    if (cadena != null) {
+      if (cadena.length == 0)
+        cadena = '000' + cadena;
+      else if (cadena.length == 1)
+        cadena = '00' + cadena;
+      else if (cadena.length == 2) cadena = '0' + cadena;
+    } else
+      cadena = '000';
+
     return cadena;
   }
 
@@ -280,7 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemCount: listaCompetidores.length,
               itemBuilder: (context, int index) {
                 return new Dismissible(
-                  key: new Key(listaCompetidores[index].tiempo.toString()),
+                  key: UniqueKey(),
                   child: new Card(
                     child: new ListTile(
                         title: Text(
